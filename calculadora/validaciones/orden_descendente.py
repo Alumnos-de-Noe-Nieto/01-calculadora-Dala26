@@ -6,6 +6,8 @@ Excepción: las 6 formas sustractivas válidas.
 Ejemplos válidos: XVI, MDCLXVI, XIV (sustracción válida)
 Ejemplos inválidos: IVX, IIV, VIV
 """
+VALORES = {'I': 1, 'V': 5, 'X': 10, 'L': 50,'C': 100, 'D': 500, 'M': 1000}
+SUSTRACCIONES_VALIDAS = {'IV', 'IX', 'XL', 'XC', 'CD', 'CM'}
 
 def validar_orden_descendente(cadena: str) -> bool:
     """
@@ -44,4 +46,30 @@ def validar_orden_descendente(cadena: str) -> bool:
         >>> validar_orden_descendente("VIV")
         False
     """
+    i = 0
+
+    while i < len(cadena):
+        comparacion = cadena[i:i+2] # Obtener el par actual de caracteres (ej: "IV", "IX", etc.)
+        if comparacion in SUSTRACCIONES_VALIDAS: # Si el par actual es una sustracción válida
+            if i > 0 and cadena[i-1] == cadena[i]: # Verificar que no haya repeticiones antes
+                return False
+            # Regla: El orden debe seguir siendo descendente tras la sustracción
+            # Comprobamos si existe un siguiente caracter después del par (i+2)
+            if i + 2 < len(cadena) and VALORES[cadena[i+1]] < VALORES[cadena[i+2]]: # Verificar que el orden descendente continúe después de la resta
+                    return False
+            i += 2  # Saltamos el par sustractivo
+            continue
+        # Si no es resta, comparar con el siguiente símbolo
+        if i + 1 < len(cadena) and VALORES[cadena[i]] < VALORES[cadena[i+1]]:
+                return False
+        i += 1
+    return True
     raise NotImplementedError()
+
+''' zona de pruebas
+print(validar_orden_descendente("XVI")) #True
+print(validar_orden_descendente("IVX")) #False
+print(validar_orden_descendente("MCMXCIV")) #True
+print(validar_orden_descendente("IIV")) #False
+print(validar_orden_descendente("VIV")) #False
+'''

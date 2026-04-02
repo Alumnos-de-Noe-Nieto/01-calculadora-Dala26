@@ -7,7 +7,8 @@ IV (4), IX (9), XL (40), XC (90), CD (400), CM (900)
 Ejemplos válidos: IV, IX, XL, XC, CD, CM, XIV (X + IV)
 Ejemplos inválidos: IL (49), IC (99), XD (490), XM (990), VX (5), LC (50)
 """
-
+VALORES = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+SUSTRACCIONES_VALIDAS = {'IV', 'IX', 'XL', 'XC', 'CD', 'CM'}
 
 def validar_restas(cadena: str) -> bool:
     """
@@ -43,4 +44,37 @@ def validar_restas(cadena: str) -> bool:
         >>> validar_restas("MCMXCIV")
         True
     """
+    # La estructura es parecida a la de orden_descendente sin embargo con otra funcion
+    i = 0
+    while i < len(cadena):
+        # Verificar si hay un siguiente carácter para comparar
+        if i + 1 < len(cadena): # Si hay un siguiente carácter, comparamos los valores
+            valor_actual = VALORES[cadena[i]]
+            valor_siguiente = VALORES[cadena[i+1]]
+
+            # Detectar una resta válida (valor actual < valor siguiente)
+            if valor_actual < valor_siguiente: # Si el valor actual es menor que el siguiente, es una posible resta
+                par_resta = cadena[i:i+2]
+
+                # si el par sustraído no está en las sustracciones válidas, es falso
+                if par_resta not in SUSTRACCIONES_VALIDAS:
+                    return False
+                # Si el carácter anterior es igual al actual que está restando, es falso
+                if i > 0 and cadena[i-1] == cadena[i]:
+                    return False
+                # Si la resta es válida, saltamos 2 posiciones
+                i += 2
+                continue
+        # Si no es una sustracción o es el último carácter, avanzamos 1
+        i += 1
+    return True
     raise NotImplementedError()
+
+''' zona de pruebas
+print(validar_restas("IV")) #True
+print(validar_restas("IX")) #True
+print(validar_restas("IL")) #False
+print(validar_restas("IC")) #False
+print(validar_restas("XIV")) #True
+print(validar_restas("IIX")) #False
+'''
