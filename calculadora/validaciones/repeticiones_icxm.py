@@ -5,6 +5,8 @@ Los símbolos I, X, C y M pueden repetirse hasta 3 veces consecutivas.
 Ejemplos válidos: III, XXX, CCC, MMM
 Ejemplos inválidos: IIII, XXXX, CCCC, MMMM
 """
+SIMBOLOS_REPETIBLES= ["I", "X", "C", "M"]
+MAX_REPETICIONES= 3
 
 def validar_repeticiones_icxm(cadena: str) -> bool:
     """
@@ -36,4 +38,22 @@ def validar_repeticiones_icxm(cadena: str) -> bool:
         >>> validar_repeticiones_icxm("MMMM")
         False
     """
+    for caracter in SIMBOLOS_REPETIBLES: #un "for anidado"
+        restriccion = caracter * (MAX_REPETICIONES + 1) # contara las veces que se repite el simbolo (no mas de 3)
+
+        if restriccion in cadena: # si el simbolo se repite mas de 3 veces, la cadena no es valida
+            return False
+    return True
+
     raise NotImplementedError()
+
+''' zona de pruebas
+print(validar_repeticiones_icxm("III"))
+print(validar_repeticiones_icxm("IIII"))
+print(validar_repeticiones_icxm("XIX"))
+print(validar_repeticiones_icxm("XXX"))
+print(validar_repeticiones_icxm("XXXX"))
+print(validar_repeticiones_icxm("CCCC"))
+print(validar_repeticiones_icxm("MMMM"))
+print(validar_repeticiones_icxm("MMMCMXCIV"))
+'''

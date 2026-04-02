@@ -12,6 +12,7 @@ from calculadora.validaciones import (
 )
 from calculadora.validaciones.alfabeto import validar_simbolos
 
+diccionario = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V': 5, 'I': 1}
 
 def romano_a_entero(cadena: str) -> int:
     """
@@ -48,4 +49,40 @@ def romano_a_entero(cadena: str) -> int:
     Raises:
         ExpresionInvalida: Si la cadena no es válida según las reglas de números romanos (símbolos inválidos, repeticiones inválidas, orden incorrecto, restas inválidas)
     """
+    total = 0
+    valor_anterior = 0
+    cadena_limpia = cadena.strip()
+    # Validaciones antes de la conversión (zona de errores)
+    if not validar_simbolos(cadena_limpia):
+        raise ExpresionInvalida("La expresion contiene caracteres invalidos o está vacía.")
+    if not validar_repeticiones_icxm(cadena_limpia):
+        raise ExpresionInvalida("Error de sintaxis: repetición excesiva de I, X, C o M (máximo 3).")
+    if not validar_repeticiones_vld(cadena_limpia):
+        raise ExpresionInvalida("Error de sintaxis: los caracteres V, L o D no pueden repetirse.")
+    if not validar_restas(cadena_limpia):
+        raise ExpresionInvalida("Error semántico: se detectó una combinación de resta inválida.")
+    if not validar_orden_descendente(cadena_limpia):
+        raise ExpresionInvalida("Error de sintaxis: el orden de los caracteres es incorrecto.")
+    # Usamos reversed() para cumplir con la pista del algoritmo recomendado
+    for simbolo in reversed(cadena_limpia):
+        valor_actual = diccionario[simbolo]
+        if valor_actual < valor_anterior:
+            # Caso resta
+            total -= valor_actual
+        else:
+            # Caso suma
+            total += valor_actual
+        valor_anterior = valor_actual
+
+    return total
     raise NotImplementedError()
+
+''' zona de pruebas
+print(romano_a_entero("I")) #1
+print(romano_a_entero("V")) #5
+print(romano_a_entero("IV")) #4
+print(romano_a_entero("IX")) #9
+print(romano_a_entero("XIV")) #14
+print(romano_a_entero("MCMXCIV")) #1994
+print(romano_a_entero("MMMCMXCIX")) #3999
+'''

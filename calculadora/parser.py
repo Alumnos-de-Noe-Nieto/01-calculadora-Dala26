@@ -52,6 +52,19 @@ def evaluar_expresion(expresion: str) -> list[Token]:
         >>> evaluar_expresion("")
         []
     """
+    # para realizar esta parte primero se tiene que hacer los puntos 7.2 y 7.3, ya que se necesitan en esta función
+    if not expresion.strip():
+        return []
+    try:
+        # Tokenizar
+        tokens = tokenizar_expresion(expresion)
+        # Validacion de estructuras
+        if not validar_estructura_tokens(tokens):
+            raise ExpresionInvalida(f'La expresión "{expresion}" tiene una estructura inválida')
+        return tokens
+    except ExpresionInvalida as e:
+        # Volver a hacer la excepción para que sea capturada por el nivel superior
+        raise e
     raise NotImplementedError()
 
 
@@ -95,6 +108,30 @@ def tokenizar_expresion(expresion: str) -> list[Token]:
         >>> tokenizar_expresion("X+V")
         [Token("ROMANO", "X", 0), Token("SUMA", "+", 1), Token("ROMANO", "V", 2)]
     """
+    tokens = []
+    i = 0
+    alfabeto_romano = "IVXLCDM"
+
+    while i < len(expresion):
+        char = expresion[i]
+        if char == ' ': # Si el caracter es un espacio, creamos un token de tipo ESPACIO
+            tokens.append(Token("ESPACIO", " ", i))
+            i += 1
+        elif char == '+': # Si el caracter es una suma, creamos un token de tipo SUMA
+            tokens.append(Token("SUMA", "+", i))
+            i += 1
+        elif char == '-': # Si el caracter es una resta, creamos un token de tipo RESTA
+            tokens.append(Token("RESTA", "-", i))
+            i += 1
+        elif char in alfabeto_romano: # Si el caracter es un símbolo romano, leemos todos los caracteres romanos consecutivos
+            inicio = i
+            while i < len(expresion) and expresion[i] in alfabeto_romano: # Si el caracter actual es un símbolo romano, seguimos avanzando
+                i += 1
+            tokens.append(Token("ROMANO", expresion[inicio:i], inicio))
+        else:
+            # Caracter no reconocido
+            raise ExpresionInvalida(f"Caracter inválido '{char}' en posicion {i}")
+    return tokens
     raise NotImplementedError()
 
 
@@ -129,4 +166,22 @@ def validar_estructura_tokens(tokens: list[Token]) -> bool:
         >>> validar_estructura_tokens([Token("SUMA", "+", 0), Token("ROMANO", "X", 1)])
         False
     """
+    tokens_se= [t for t in tokens if t.tipo != 'ESPACIO'] # Filtrar los tokens de tipo 'ESPACIO' para que sea
+    # facil la validacion. Si no hay nada, no es una estructura válida
+    if not tokens_se:
+        return False
+    # La estructura mínima es A + B (3 tokens) y debe ser impar (A, A+B, A+B-C...)
+    if len(tokens_se) < 3 or len(tokens_se) % 2 == 0:
+        return False
+    # Validar alternancia
+    for i, token in enumerate(tokens_se):
+        if i % 2 == 0:
+            # Posiciones 0, 2, 4... deben ser números
+            if token.tipo != "ROMANO":
+                return False
+        else:
+            # Posiciones 1, 3, 5... deben ser operadores
+            if token.tipo not in ("SUMA", "RESTA"):
+                return False
+    return True
     raise NotImplementedError()
